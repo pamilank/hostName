@@ -1,12 +1,12 @@
-# Created by PAMILANK (June 24, 2021)
-# Updated by PAMILANK (June 28, 2021)
+# Created by PAMILANK (June 30, 2021)
+# Updated by PAMILANK (July 02, 2021)
 
 import socket  # to get hostname
 import webbrowser  # to open home.html in browser
 import os  # to get current working directory getcwd()
 
 
-def getHostName(string):
+def getHostName(string):  # get the hostname of the device using socket
     host = ''
     printer_socket = (socket.gethostbyaddr(string))  # it will get Host Name, Alias list for the IPs, IP of HOST
     host = host.join(printer_socket[0])  # index 0 is for Hostname
@@ -14,7 +14,24 @@ def getHostName(string):
     return host
 
 
-def colorHost(string):  # to check the status is READY or not for coloring
+def ping(hostname):
+    response = os.system("ping -n 1 " + hostname)
+    # and then check the response...
+    if response == 0:
+        pingstr = """
+                    <td class = "greenGlassText">Network Active</td>
+                    </tr>
+                    """
+    else:
+        pingstr = """
+                   <td class = "redClass">Network Error</td>
+                    </tr>
+                    """
+
+    return pingstr
+
+
+def colorHost(string):  # colorHost to add conditional coloring for freeip
     if string == "freeip.amazon.com":
         color_str = """
                     <td class = "greenGlass">%s</td> 
@@ -35,16 +52,12 @@ def hostTable():
     for i in range(first, (first + last) // 2):
         try:
             ips = "10.22.55." + str(i)
-            hostname = getHostName(ips)  # get the hostname of the device using socket
             # Read and write on home.html if URL is pingable
             html_str += """
                                                 <tr>
                                                     <td>%s</td>                  
                                                 """ % ips
-            html_str += colorHost(hostname) + """
-                                                    <td>TBD</td>
-                                                    </tr>
-                                                 """  # add conditional coloring in status column
+            html_str += colorHost(getHostName(ips)) + ping(ips)
         except IOError:
             # Read and write on home.html if URL is not pingable
             html_str = html_str + """
@@ -58,16 +71,12 @@ def hostTable():
     for i in range((first + last) // 2, last + 1):
         try:
             ips = "10.22.55." + str(i)
-            hostname = getHostName(ips)  # get the hostname of the device using socket
             # Read and write on home.html if URL is pingable
             html_str += """
                                                 <tr>
                                                     <td>%s</td>                  
                                                 """ % ips
-            html_str += colorHost(hostname) + """
-                                                    <td>TBD</td>
-                                                    </tr>
-                                                 """  # add conditional coloring in status column
+            html_str += colorHost(getHostName(ips)) + ping(ips)
         except IOError:
             # Read and write on home.html if URL is not pingable
             html_str = html_str + """
@@ -87,12 +96,21 @@ if __name__ == '__main__':
                     <html lang="en">
                     <head>
                         <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>EWR5 - VLAN</title>
                         <link rel="stylesheet" href="styles.css">
                     </head>               
                     <body>
                     <div class="header">
-                      <h1>EWR5 - VLAN 750</h1>
+                      <h1>EWR5 - VLAN</h1>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropbtn">Select VLAN</button>
+                          <div class="dropdown-content">
+                            <a href="#">User VLAN 750</a>
+                            <a href="#">User VLAN 750</a>
+                            <a href="#">Add more VLAN from here</a>
+                          </div>
                     </div>
                     <table class="styled-table">
                         <thead>
